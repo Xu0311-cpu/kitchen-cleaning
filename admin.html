@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员界面 - 寝室厨房打扫系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 头部信息 -->
+        <header class="text-center py-4 bg-primary text-white">
+            <h1>寝室厨房打扫系统 - 管理员界面</h1>
+            <div id="current-date" class="h4"></div>
+        </header>
+
+        <!-- 管理控制面板 -->
+        <div class="row py-4">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h3 class="card-title mb-0">📋 管理控制</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="set-room-select" class="form-label">设置今日打扫房间</label>
+                            <select id="set-room-select" class="form-select">
+                                <option value="">-- 选择房间 --</option>
+                                <!-- 房间选项将通过JavaScript动态生成 -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manual-room" class="form-label">或手动输入房间号</label>
+                            <input type="number" id="manual-room" class="form-control" placeholder="输入房间号">
+                        </div>
+                        <button id="set-room-btn" class="btn btn-primary w-100">设置打扫房间</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h3 class="card-title mb-0">⚙️ 系统管理</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">数据管理</label>
+                            <div class="d-grid gap-2">
+                                <button id="reset-data" class="btn btn-danger">重置所有数据</button>
+                                <button id="export-data" class="btn btn-outline-primary">导出数据</button>
+                                <button id="import-data" class="btn btn-outline-secondary">导入数据</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">房间管理</label>
+                            <div class="d-grid gap-2">
+                                <button id="force-rejoin" class="btn btn-success">强制所有房间重新加入</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <main class="py-4">
+            <!-- 当前打扫房间卡片 -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h2 class="card-title mb-0">今日打扫房间</h2>
+                </div>
+                <div class="card-body text-center">
+                    <div id="current-room" class="display-4 fw-bold text-success"></div>
+                    <div id="room-status" class="mt-2"></div>
+                </div>
+            </div>
+
+            <!-- 打扫记录区域 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">📸 打扫记录管理</h3>
+                </div>
+                <div class="card-body">
+                    <!-- 拍照上传区域 -->
+                    <div class="mb-3">
+                        <label for="camera-input" class="form-label">上传打扫照片</label>
+                        <input type="file" id="camera-input" class="form-control" accept="image/*" capture="camera">
+                        <button id="upload-btn" class="btn btn-primary mt-2" disabled>确认上传</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 房间管理区域 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">🏠 房间管理</h3>
+                    <small class="text-muted">活跃房间: <span id="active-count">26</span> | 跳过房间: <span id="skip-count">0</span></small>
+                </div>
+                <div class="card-body">
+                    <div id="rooms-container" class="row">
+                        <!-- 房间列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">📊 历史记录</h3>
+                </div>
+                <div class="card-body">
+                    <div id="history-list" class="list-group">
+                        <!-- 历史记录将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部返回按钮 -->
+        <div class="text-center py-3">
+            <a href="room-selection.html" class="btn btn-outline-secondary">返回房间选择</a>
+        </div>
+    </div>
+
+    <!-- 照片查看模态框 -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalTitle">打扫照片</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="photoModalImage" src="" class="img-fluid" style="max-height: 70vh;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重置确认模态框 -->
+    <div class="modal fade" id="resetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">重置确认</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">确定要重置所有数据吗？</p>
+                    <p>这将清除：</p>
+                    <ul>
+                        <li>所有打扫历史记录</li>
+                        <li>所有跳过状态</li>
+                        <li>当前打扫房间设置</li>
+                    </ul>
+                    <p class="text-danger">此操作不可撤销！</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm-reset">确认重置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
